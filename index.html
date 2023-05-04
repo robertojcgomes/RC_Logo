@@ -147,18 +147,18 @@
 			});
 
 			logoEnvMap = new EXRLoader().load('examples/textures/cloudy_sky3.exr', function (texture) {
-			texture.mapping = THREE.EquirectangularReflectionMapping;
+				texture.mapping = THREE.EquirectangularReflectionMapping;
 			});
 
-			img1 = new THREE.TextureLoader().load('examples/textures/cerveau.jpg');
-			img1.encoding = THREE.sRGBEncoding;
+			/*img1 = new THREE.TextureLoader().load('examples/textures/cerveau.jpg');
+			img1.colorSpace = THREE.sRGBEncoding;
 			img2 = new THREE.TextureLoader().load('examples/textures/audermars.png');
-			img2.encoding = THREE.sRGBEncoding;
+			img2.colorSpace = THREE.sRGBEncoding;
 			img3 = new THREE.TextureLoader().load('examples/textures/Dior_fullsize.png');
-			img3.encoding = THREE.sRGBEncoding;
+			img3.colorSpace = THREE.sRGBEncoding;*/
 
 			// Glass Material
-			glassMaterial = new THREE.MeshPhysicalMaterial({
+			/*glassMaterial = new THREE.MeshPhysicalMaterial({
 				//envMap: scene.environment,
 				envMap: logoEnvMap,
 				transparent: true,
@@ -169,9 +169,9 @@
 				roughness: 0,
 				thickness: 0.2,
 				iridescence: 0
-			});
+			});*/
 			// Iridescence Metal
-			iridescenceMetal = new THREE.MeshPhysicalMaterial({
+			/*iridescenceMetal = new THREE.MeshPhysicalMaterial({
 				envMap: scene.environment,
 				//envMap: logoEnvMap,			
 				//reflectivity: 1.2,
@@ -181,7 +181,7 @@
 				iridescence: 1,
 				iridescenceIOR: 1.94,
 				iridescenceThicknessRange: [100, 400]
-			});
+			});*/
 			// Iridescence Glass
 			iridescenceGlass = new THREE.MeshPhysicalMaterial({
 				envMap: logoEnvMap,				
@@ -201,7 +201,7 @@
 			});
 
 			// Medaillon
-			new GLTFLoader()
+			/*new GLTFLoader()
 				.setPath('examples/models/gltf/')
 				.setDRACOLoader(new DRACOLoader().setDecoderPath('jsm/libs/draco/gltf/'))
 				.load('medaillon_WebGL02.glb', function (gltf) {
@@ -215,7 +215,7 @@
 					displayCase.visible = false;
 					scene.add(displayCase);
 					objects.push(displayCase);
-				});
+				});*/
 
 			// Logo
 			gyroParent = new THREE.Group();
@@ -261,36 +261,36 @@
 				});
 
 			// Postprocessing
-			composer = new EffectComposer(renderer);
+			//composer = new EffectComposer(renderer);
 
-			const smaaPass = new SMAAPass(
-				window.innerWidth * renderer.getPixelRatio(),
-				window.innerHeight * renderer.getPixelRatio());
+			//const smaaPass = new SMAAPass(
+				//window.innerWidth * renderer.getPixelRatio(),
+				//window.innerHeight * renderer.getPixelRatio());
 
-			const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+			//const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 			//bloomPass.threshold = 0.3;//0.2;
-			bloomPass.strength = 0.25;//0.7;
-			bloomPass.radius = 0.5;//0.2;
+			//bloomPass.strength = 0.25;//0.7;
+			//bloomPass.radius = 0.5;//0.2;
 			
-			const gammaCorrection = new ShaderPass(GammaCorrectionShader);
+			//const gammaCorrection = new ShaderPass(GammaCorrectionShader);
 
-			composer.addPass(new RenderPass(scene, camera));
-			composer.addPass( gammaCorrection );
-			composer.addPass(bloomPass);
-			composer.addPass(smaaPass);
+			//composer.addPass(new RenderPass(scene, camera));
+			//composer.addPass( gammaCorrection );
+			//composer.addPass(bloomPass);
+			//composer.addPass(smaaPass);
 
 			window.addEventListener('resize', onWindowResize);
 
-			renderer.domElement.addEventListener('mousemove', onMouseMove);
-			renderer.domElement.addEventListener('mousedown', onMouseDown);
-			renderer.domElement.addEventListener('mouseup', onMouseUp);
+			//renderer.domElement.addEventListener('mousemove', onMouseMove);
+			//renderer.domElement.addEventListener('mousedown', onMouseDown);
+			//renderer.domElement.addEventListener('mouseup', onMouseUp);
 			
-			renderer.domElement.addEventListener("touchmove", onTouchMove );
-			renderer.domElement.addEventListener("touchstart", onTouchStart );
-			renderer.domElement.addEventListener("touchend", onTouchEnd);
+			//renderer.domElement.addEventListener("touchmove", onTouchMove );
+			//renderer.domElement.addEventListener("touchstart", onTouchStart );
+			//renderer.domElement.addEventListener("touchend", onTouchEnd);
 
 			// Scene GUI
-			const gui = new GUI();
+			/*const gui = new GUI();
 
 			gui.add(sceneParams, 'rotation').onChange(function (bool) {});
 			gui.add(sceneParams, 'minWidth').onChange(function (bool) {
@@ -371,107 +371,7 @@
 
 			//logoFolder.close();
 			folder.close();
-			//gui.close();
-		}
-
-		// Card user rotation control
-		intersectRaycaster = new THREE.Raycaster();
-
-		var mouseDown = false,
-			mouseX = 0,
-			mouseY = 0;
-
-		function onTouchStart(event) {
-			event.preventDefault();
-
-			mouseDown = true;
-			autoRotate = true;
-			mouseX = event.touches[0].clientX;
-			mouseY = event.touches[0].clientY;
-		}
-
-		function onTouchEnd(event) {
-			mouseDown = false;
-			autoRotate = false;
-		}
-
-		function onTouchMove(event) {
-			event.preventDefault();		
-			pointer.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-			pointer.y = - (event.touches[0].clientY / window.innerHeight) * 2 + 1;
-
-			var deltaX = event.touches[0].clientX - mouseX,
-				deltaY = event.touches[0].clientY - mouseY;
-			mouseX = event.touches[0].clientX;
-			mouseY = event.touches[0].clientY;
-
-			displayCase.rotation.y += deltaX / 100;
-		}
-
-		function onMouseDown(event) {
-			event.preventDefault();
-			intersectRaycaster.setFromCamera(pointer, camera);
-			const intersects = intersectRaycaster.intersectObjects(objects);
-
-			if (intersects.length > 0) {
-				//console.log("found");
-				pickedObj.push(intersects[0].object);
-
-				mouseDown = true;
-				autoRotate = true;
-				mouseX = event.clientX;
-				mouseY = event.clientY;
-			}
-		}
-
-		function onMouseUp(event) {
-			event.preventDefault();
-			mouseDown = false;
-			autoRotate = false;
-			pickedObj.length = 0;
-		}
-
-		function onMouseMove(event) {
-			event.preventDefault();			
-			pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-			pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-			var deltaX = event.clientX - mouseX,
-				deltaY = event.clientY - mouseY;
-			mouseX = event.clientX;
-			mouseY = event.clientY;
-
-			rotateObject(deltaX, deltaY);
-
-			intersectRaycaster.setFromCamera(pointer, camera);
-
-			const intersects = intersectRaycaster.intersectObjects(objects);
-
-			if (intersects.length > 0) {
-
-				if (INTERSECTED != intersects[0].object) {
-
-					INTERSECTED = intersects[0].object;
-					displayCase.scale.set(1.05, 1.05, 1.05);
-
-					renderer.domElement.style.cursor = 'pointer';
-				}
-
-			} else {
-
-				if (INTERSECTED) {
-
-					displayCase.scale.set(1, 1, 1);
-				}
-				INTERSECTED = null;
-
-				renderer.domElement.style.cursor = '';
-			}
-		}
-
-		function rotateObject(deltaX, deltaY) {
-
-			if (mouseDown && pickedObj.length > 0) displayCase.rotation.y += deltaX / 100;
+			//gui.close();*/
 		}
 
 		function onWindowResize() {
@@ -480,7 +380,7 @@
 			camera.updateProjectionMatrix();
 
 			renderer.setSize(width, height);
-			composer.setSize(width, height);
+			//composer.setSize(width, height);
 		}	
 
 		function initSensor() {
@@ -515,7 +415,7 @@
 		}
 
 		function render() {
-			switch (sceneParams.scene) {
+			/*switch (sceneParams.scene) {
 				case 'Clouds':
 					renderer.render(scene, camera);
 					break;
@@ -525,7 +425,8 @@
 				case 'Bloom':
 					composer.render();
 					break;
-			}
+			}*/
+			renderer.render(scene, camera);
 		}
 
 		let log = console.log;
