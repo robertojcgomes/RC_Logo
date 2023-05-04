@@ -74,7 +74,7 @@
 		sceneParams = {
 			scene: 'Clouds',
 			texture: 'Cerveau',
-			gyro: false,
+			gyro: true,
 			gyroRotation: -1.57,
 			rotation: true,
 			minWidth: false,
@@ -230,7 +230,7 @@
 					logoParent.add(gyroParent);
 					gyroParent.add(gyroGroup);
 					gyroGroup.add(logoSymbol);
-					logoParent.add(logoSymbol);
+					//logoParent.add(logoSymbol);
 
 					gyroParent.rotation.x = -1.57;
 
@@ -369,9 +369,9 @@
 
 					} );
 
-			logoFolder.close();
+			//logoFolder.close();
 			folder.close();
-			gui.close();
+			//gui.close();
 		}
 
 		// Card user rotation control
