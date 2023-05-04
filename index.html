@@ -13,7 +13,6 @@
 </head>
 
 <body>
-	<!-- <iframe src="examples/video_bg.html"></iframe> -->
 	
 	<div id="statsContainer"></div>
 	<div id="container"></div>
@@ -33,20 +32,11 @@
 
 	<script type="module">
 		import * as THREE from 'three';
-		import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 		import Stats from 'three/addons/libs/stats.module.js';
 
 		import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 		import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-
-		import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-		import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-		import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
-		import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
-		import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-		import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
 
 		import { AbsoluteOrientationSensor, RelativeOrientationSensor } from './build/motion-sensors.js';
 
@@ -54,11 +44,8 @@
         const relative = !!Number(params.get("relative"));
 	    const coordinateSystem = params.get("coord");
 
-		let camera, scene, bgTexture, logoEnvMap, renderer, composer, stats;
-		let displayCase, card, glassMaterial, iridescenceMetal, iridescenceGlass, img1, img2, img3;
-		let INTERSECTED, intersectRaycaster;
-		let sceneParams;
-		let autoRotate = false;
+		let camera, scene, bgTexture, logoEnvMap, renderer, stats;
+		let iridescenceGlass;
 		let width, height;
 		let gyroParent, gyroGroup,
 			logoScene, logoParent, logoSymbol,
@@ -69,17 +56,7 @@
 
 		const objects = [];
 		const pickedObj = [];
-		const pointer = new THREE.Vector2();
-
-		sceneParams = {
-			scene: 'Clouds',
-			texture: 'Cerveau',
-			gyro: true,
-			gyroRotation: -1.57,
-			rotation: true,
-			minWidth: false,
-			logo: true
-		};
+		const pointer = new THREE.Vector2();		
 
 		if (navigator.permissions) {
 			//https://w3c.github.io/orientation-sensor/#model
@@ -110,8 +87,6 @@
 
 			const container = document.getElementById('container');
 			const statsContainer = document.getElementById('statsContainer');
-
-			//THREE.ColorManagement.enabled = true;
 
 			width = window.innerWidth;
 			height = window.innerHeight;
@@ -150,38 +125,6 @@
 				texture.mapping = THREE.EquirectangularReflectionMapping;
 			});
 
-			/*img1 = new THREE.TextureLoader().load('examples/textures/cerveau.jpg');
-			img1.colorSpace = THREE.sRGBEncoding;
-			img2 = new THREE.TextureLoader().load('examples/textures/audermars.png');
-			img2.colorSpace = THREE.sRGBEncoding;
-			img3 = new THREE.TextureLoader().load('examples/textures/Dior_fullsize.png');
-			img3.colorSpace = THREE.sRGBEncoding;*/
-
-			// Glass Material
-			/*glassMaterial = new THREE.MeshPhysicalMaterial({
-				//envMap: scene.environment,
-				envMap: logoEnvMap,
-				transparent: true,
-				color: 0xffffff,
-				transmission: 1,
-				opacity: 1,
-				metalness: 0.2,
-				roughness: 0,
-				thickness: 0.2,
-				iridescence: 0
-			});*/
-			// Iridescence Metal
-			/*iridescenceMetal = new THREE.MeshPhysicalMaterial({
-				envMap: scene.environment,
-				//envMap: logoEnvMap,			
-				//reflectivity: 1.2,
-				roughness: 0.1,
-				metalness: 0.98,
-				emissive: 0,
-				iridescence: 1,
-				iridescenceIOR: 1.94,
-				iridescenceThicknessRange: [100, 400]
-			});*/
 			// Iridescence Glass
 			iridescenceGlass = new THREE.MeshPhysicalMaterial({
 				envMap: logoEnvMap,				
@@ -199,23 +142,6 @@
 				iridescenceThicknessRange: [100, 400],
 				//forceSinglePass: true
 			});
-
-			// Medaillon
-			/*new GLTFLoader()
-				.setPath('examples/models/gltf/')
-				.setDRACOLoader(new DRACOLoader().setDecoderPath('jsm/libs/draco/gltf/'))
-				.load('medaillon_WebGL02.glb', function (gltf) {
-
-					displayCase = gltf.scene;
-					displayCase.getObjectByName('DisplayCase_1').material = iridescenceMetal;
-					//displayCase.getObjectByName('DisplayCase_3').material = glassMaterial;
-
-					card = displayCase.getObjectByName('DisplayCase_2');					
-
-					displayCase.visible = false;
-					scene.add(displayCase);
-					objects.push(displayCase);
-				});*/
 
 			// Logo
 			gyroParent = new THREE.Group();
@@ -260,118 +186,7 @@
 					mixers.push(mixer1,mixer2,mixer3,mixer4,mixer5,mixer6);
 				});
 
-			// Postprocessing
-			//composer = new EffectComposer(renderer);
-
-			//const smaaPass = new SMAAPass(
-				//window.innerWidth * renderer.getPixelRatio(),
-				//window.innerHeight * renderer.getPixelRatio());
-
-			//const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-			//bloomPass.threshold = 0.3;//0.2;
-			//bloomPass.strength = 0.25;//0.7;
-			//bloomPass.radius = 0.5;//0.2;
-			
-			//const gammaCorrection = new ShaderPass(GammaCorrectionShader);
-
-			//composer.addPass(new RenderPass(scene, camera));
-			//composer.addPass( gammaCorrection );
-			//composer.addPass(bloomPass);
-			//composer.addPass(smaaPass);
-
 			window.addEventListener('resize', onWindowResize);
-
-			//renderer.domElement.addEventListener('mousemove', onMouseMove);
-			//renderer.domElement.addEventListener('mousedown', onMouseDown);
-			//renderer.domElement.addEventListener('mouseup', onMouseUp);
-			
-			//renderer.domElement.addEventListener("touchmove", onTouchMove );
-			//renderer.domElement.addEventListener("touchstart", onTouchStart );
-			//renderer.domElement.addEventListener("touchend", onTouchEnd);
-
-			// Scene GUI
-			/*const gui = new GUI();
-
-			gui.add(sceneParams, 'rotation').onChange(function (bool) {});
-			gui.add(sceneParams, 'minWidth').onChange(function (bool) {
-
-				if (sceneParams.minWidth == false){
-					width = window.innerWidth;
-				}else{
-					width = 340;
-				}
-					camera.aspect = width / height;
-					camera.updateProjectionMatrix();
-					renderer.setSize(width, height);
-					composer.setSize(width, height);
-			});
-			gui.add(sceneParams, 'scene', ['Clouds', 'Background', 'Bloom']).onChange(function (value) {
-
-				switch (value) {
-					case 'Clouds':
-						scene.background = null;
-						break;
-					case 'Background':
-						scene.background = bgTexture;
-						break;
-					case 'Bloom':
-						scene.background = bgTexture;
-						break;
-				}
-				render();
-			});
-
-			const folder = gui.addFolder('Card Image');
-
-			folder.add(sceneParams, 'texture', ['Cerveau', 'Audermars', 'Dior']).onChange(function (value) {
-
-				switch (value) {
-
-					case 'Cerveau':
-						card.material.emissiveMap = img1;
-						break;
-					case 'Audermars':
-						card.material.emissiveMap = img2;
-						break;
-					case 'Dior':
-						card.material.emissiveMap = img3;
-						break;
-				}
-
-				card.material.emissiveMap.flipY = false;
-				render();
-			});
-
-			const logoFolder = gui.addFolder('RC Logo');
-
-
-			logoFolder.add(sceneParams, 'logo').onChange(function (bool) {
-				if (sceneParams.logo == false){
-					displayCase.position.y = 0;
-				}else{
-					displayCase.position.y = -1000;
-				}
-				logoParent.visible = sceneParams.logo;
-			});
-			logoFolder.add(sceneParams, 'gyro').onChange(function (bool) {
-				if(sceneParams.gyro == false){
-					gyroGroup.remove(logoSymbol);
-					logoParent.add(logoSymbol);
-				}else{
-					logoParent.remove(logoSymbol);
-					gyroGroup.add(logoSymbol);
-				}
-			});
-			logoFolder.add( sceneParams, 'gyroRotation', -6.28319, 6.28319, 0.001 )
-					.onChange( function () {
-
-						gyroParent.rotation.x = sceneParams.gyroRotation;
-
-					} );
-
-			//logoFolder.close();
-			folder.close();
-			//gui.close();*/
 		}
 
 		function onWindowResize() {
@@ -380,10 +195,10 @@
 			camera.updateProjectionMatrix();
 
 			renderer.setSize(width, height);
-			//composer.setSize(width, height);
 		}	
 
 		function initSensor() {
+
 			const options = { frequency: 60, coordinateSystem };
 			console.log(JSON.stringify(options));
 			sensor = relative ? new RelativeOrientationSensor(options) : new AbsoluteOrientationSensor(options);
@@ -402,30 +217,9 @@
 			
 			const delta = clock.getDelta();
 			for ( const mixer of mixers ) mixer.update( delta );
+			
+			stats.update();
 
-			stats.begin();
-
-			if (displayCase != null && !autoRotate && sceneParams.rotation) {
-				displayCase.rotation.y -= 0.02;
-			}
-
-			render();
-
-			stats.end();
-		}
-
-		function render() {
-			/*switch (sceneParams.scene) {
-				case 'Clouds':
-					renderer.render(scene, camera);
-					break;
-				case 'Background':
-					renderer.render(scene, camera);
-					break;
-				case 'Bloom':
-					composer.render();
-					break;
-			}*/
 			renderer.render(scene, camera);
 		}
 
@@ -435,6 +229,7 @@
 			div.innerText = message;
 			log.call(console, message, ...rest);
 		}
+
 	</script>
     <div id="console"></div>
 </body>
